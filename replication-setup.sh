@@ -2,13 +2,13 @@
 DB=mattermost
 DUMP_FILE="/vagrant/$DB-export-$(date +"%Y%m%d").sql"
 
-MASTER_USER=root
-MASTER_PASS=root
+root_user="root"
+root_password=$1
 
-USER=mmuser
-PASS=really_secure_password
+mm_user="mmuser"
+mm_pass=$2
 
-MASTER_HOST=nginx
+master_host=$3
 
 ##
 # MASTER
@@ -18,8 +18,8 @@ MASTER_HOST=nginx
 
 echo "MASTER: $MASTER_HOST"
 
-mysql "-u$MASTER_USER" "-p$MASTER_PASS" $DB <<-EOSQL &
-	GRANT REPLICATION SLAVE ON *.* TO '$USER'@'%' IDENTIFIED BY '$PASS';
+mysql "-u$root_user" "-p$root_password" $DB <<-EOSQL &
+	GRANT REPLICATION SLAVE ON *.* TO '$mm_user'@'%' IDENTIFIED BY '$mm_pass';
 	FLUSH PRIVILEGES;
 	FLUSH TABLES WITH READ LOCK;
 	DO SLEEP(3600);
@@ -30,21 +30,21 @@ sleep 3
 
 # Dump the database (to the client executing this script) while it is locked
 echo "  - Dumping database to $DUMP_FILE"
-mysqldump "-u$MASTER_USER" "-p$MASTER_PASS" --opt $DB > $DUMP_FILE
+mysqldump "-u$root_user" "-p$root_password" --opt $DB > $DUMP_FILE
 echo "  - Dump complete."
 
 # Take note of the master log position at the time of dump
-MASTER_STATUS=$(mysql "-u$MASTER_USER" "-p$MASTER_PASS" -ANe "SHOW MASTER STATUS;" | awk '{print $1 " " $2}')
-LOG_FILE=$(echo $MASTER_STATUS | cut -f1 -d ' ')
-LOG_POS=$(echo $MASTER_STATUS | cut -f2 -d ' ')
-echo "  - Current log file is $LOG_FILE and log position is $LOG_POS"
+master_status=$(mysql "-u$root_user" "-p$root_password" -ANe "SHOW MASTER STATUS;" | awk '{print $1 " " $2}')
+log_file=$(echo $master_status | cut -f1 -d ' ')
+log_pos=$(echo $master_status | cut -f2 -d ' ')
+echo "  - Current log file is $log_file and log position is $log_pos"
 cat /vagrant/db_setup.sql >> /vagrant/slave_setup.sql
 echo "STOP SLAVE;
-	CHANGE MASTER TO MASTER_HOST='$MASTER_HOST',
-	MASTER_USER='$USER',
-	MASTER_PASSWORD='$PASS',
-	MASTER_LOG_FILE='$LOG_FILE',
-	MASTER_LOG_POS=$LOG_POS;
+	CHANGE MASTER TO MASTER_HOST='$master_host',
+	MASTER_USER='$mm_user',
+	MASTER_PASSWORD='$mm_pass',
+	MASTER_LOG_FILE='$log_file',
+	MASTER_LOG_POS=$log_pos;
 	START SLAVE;" > /vagrant/slave_setup.sql
 
 # When finished, kill the background locking command to unlock

@@ -65,7 +65,7 @@
     "EnableMobileUpload": true,
     "EnableMobileDownload": true,
     "MaxFileSize": 52428800,
-    "DriverName": "amazons3",
+    "DriverName": "local",
     "Directory": "/media/mmst-data/",
     "EnablePublicLink": false,
     "PublicLinkSalt": "",

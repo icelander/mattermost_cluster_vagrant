@@ -1,19 +1,24 @@
 #!/bin/bash
 
+ip_addr=$1
+server_id=$2
+root_password=$3
+
 cat /vagrant/hosts >> /etc/hosts
 
 apt-get -q -y update
+apt-get -q -y upgrade
 
 # Sets the root password for MariaDB
 export DEBIAN_FRONTEND=noninteractive
-debconf-set-selections <<< 'mysql-server mysql-server/root_password password root'
-debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password root'
+debconf-set-selections <<< "mysql-server mysql-server/root_password password $root_password"
+debconf-set-selections <<< "mysql-server mysql-server/root_password_again password $root_password"
 apt-get -q -y install mysql-server
 
 # Allows cluster to connect to MySQL
 sed -i 's|bind-address|#bind-address|g' /etc/mysql/mysql.conf.d/mysqld.cnf
 cat /vagrant/slave.mysqld.cnf >> /etc/mysql/mysql.conf.d/mysqld.cnf
-sed -i 's|#SERVER_ID|#SERVER_ID#|g' /etc/mysql/mysql.conf.d/mysqld.cnf
+sed -i "s|#SERVER_ID|$server_id|g" /etc/mysql/mysql.conf.d/mysqld.cnf
 
 sudo service mysql restart
 
@@ -23,16 +28,14 @@ DB=mattermost
 DUMP_FILE="/vagrant/$DB-export-$(date +"%Y%m%d").sql"
 
 MASTER_USER=root
-MASTER_PASS=root
+MASTER_PASS=$root_password
 
 USER=mmuser
 PASS=really_secure_password
 
-MASTER_HOST=nginx
-SLAVE_HOST=#IP_ADDR#
+MASTER_HOST=$master_host
 
-
-echo "SLAVE: $SLAVE_HOST"
+echo "SLAVE: $ip_addr"
 echo "  - Creating database copy"
 mysql "-u$MASTER_USER" "-p$MASTER_PASS" -e "DROP DATABASE IF EXISTS $DB; CREATE DATABASE $DB;"
 

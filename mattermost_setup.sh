@@ -5,6 +5,8 @@ echo $@
 mattermost_version=$1
 type=$2
 ip_address=$3
+host=$4
+mattermost_password=$5
 
 if [[ -z "$type" ]]; then
 	type="mattermost"
@@ -14,7 +16,7 @@ if [[ ! -d /media/mmst-data ]]; then
 	cat /vagrant/hosts >> /etc/hosts
 
 	apt-get -q -y update > /dev/null
-	apt-get -q -y install jq cifs-utils
+	apt-get -q -y install jq
 
 	mkdir -p /media/mmst-data
 	cat /vagrant/client_fstab >> /etc/fstab
@@ -37,10 +39,9 @@ mv mattermost /opt
 
 mkdir /opt/mattermost/data
 
-ln -s /vagrant/e20license.txt /opt/mattermost/license.txt
+cp /vagrant/e20license.txt /opt/mattermost/license.txt
 mv /opt/mattermost/config/config.json /opt/mattermost/config/config.orig.json
 
-# Add DB config
 jq -s '.[0] * .[1]' /opt/mattermost/config/config.orig.json /vagrant/instance_config.json > ./config.json
 
 cp ./config.json /opt/mattermost/config/config.json
@@ -49,16 +50,16 @@ useradd --system --user-group mattermost
 chown -R mattermost:mattermost /opt/mattermost
 chmod -R g+w /opt/mattermost
 
-echo "MM_CLUSTERSETTINGS_OVERRIDEHOSTNAME=\"$ip_address\"\n" >> /opt/mattermost/config/mm.environment
-echo "MM_CLUSTERSETTINGS_ADVERTISEADDRESS=\"$ip_address\"\n" >> /opt/mattermost/config/mm.environment
-echo "MM_CLUSTERSETTINGS_NETWORKINTERFACE=\"$ip_address\"\n" >> /opt/mattermost/config/mm.environment
+echo "MM_CONFIG=\"mysql://mmuser:$mattermost_password@tcp(master:3306)/mattermost?charset=utf8mb4,utf8\"" >> /opt/mattermost/config/mm.environment
+echo "MM_CLUSTERSETTINGS_OVERRIDEHOSTNAME=\"$host\"" >> /opt/mattermost/config/mm.environment
+echo "MM_CLUSTERSETTINGS_ADVERTISEADDRESS=\"$ip_address\"" >> /opt/mattermost/config/mm.environment
+echo "MM_CLUSTERSETTINGS_NETWORKINTERFACE=\"$ip_address\"" >> /opt/mattermost/config/mm.environment
 
 if [[ $type == "job" ]]; then
-	cp /vagrant/mattermost_job_server.env /opt/mattermost/config/mm.environment
+	cat /vagrant/mattermost_job_server.env >> /opt/mattermost/config/mm.environment
 elif [[ $type == "app" ]]; then
-	cp /vagrant/mattermost_app_server.env /opt/mattermost/config/mm.environment
+	cat /vagrant/mattermost_app_server.env >> /opt/mattermost/config/mm.environment
 fi
-
 
 cp /vagrant/mattermost.service /lib/systemd/system/mattermost.service
 
