@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - [ ] Configurable Hostname
  - [ ] Run on AWS
 
-## v0.0.1 (prerelease)
+## v0.0.1 - 2020-02-10 (prerelease)
 ### Added:
  - [x] Set Environment Variables
  - [x] Auto-config the DB
