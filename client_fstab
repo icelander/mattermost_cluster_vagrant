@@ -1,0 +1,1 @@
+//haproxy/mmst-data  /media/mmst-data  cifs  credentials=/vagrant/smbcredentials,uid=998,gid=998,iocharset=utf8,rw  0  0

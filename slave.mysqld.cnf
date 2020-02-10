@@ -1,0 +1,7 @@
+###
+# Replication Settings
+###
+
+server-id               = #SERVER_ID
+log_bin                 = /var/log/mysql/mysql-bin.log
+binlog_do_db            = mattermost
