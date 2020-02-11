@@ -21,7 +21,7 @@ mysql -uroot -proot < /vagrant/db_setup.sql
 cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.orig.cfg
 cp /vagrant/haproxy.cfg /etc/haproxy/haproxy.cfg
 cat /vagrant/appservers >> /etc/haproxy/haproxy.cfg
-service haproxy start
+service haproxy restart # Fixed: Need to restart haproxy to pick up config changes
 
 
 mkdir -p /srv/nfs4/mmstdata
