@@ -59,7 +59,7 @@ Vagrant.configure("2") do |config|
           		args: "--privileged -d -p 389:389"
       		end
       	$instance_config['LdapSettings']['Enable'] = true
-    end
+    	end
 
     	if MYSQL_REPLICA_IPS.count > 0
 			box.vm.provision :shell, path: 'master_setup.sh'
@@ -69,6 +69,11 @@ Vagrant.configure("2") do |config|
 				MASTER_HOSTNAME
 			]
 		end
+
+		# FIXED: Calling the master setup script helps...
+		box.vm.provision :shell, path: 'master_setup.sh', args: [
+			MYSQL_ROOT_PASSWORD
+		]
 	end
 
 	node_ips = MYSQL_REPLICA_IPS
