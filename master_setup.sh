@@ -16,7 +16,8 @@ apt-get -q -y install mysql-server haproxy nfs-kernel-server
 sed -i 's|bind-address|#bind-address|g' /etc/mysql/mysql.conf.d/mysqld.cnf
 cat /vagrant/master.mysqld.cnf >> /etc/mysql/mysql.conf.d/mysqld.cnf
 sudo service mysql restart
-mysql -uroot -proot < /vagrant/db_setup.sql
+# Fixed - Now using passed password
+mysql -uroot -p$root_password < /vagrant/db_setup.sql
 
 cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.orig.cfg
 cp /vagrant/haproxy.cfg /etc/haproxy/haproxy.cfg

@@ -67,7 +67,6 @@ Vagrant.configure("2") do |config|
     	]
 
     	if MYSQL_REPLICA_IPS.count > 0
-			box.vm.provision :shell, path: 'master_setup.sh'
 			box.vm.provision :shell, path: 'replication-setup.sh', run: 'always', args: [
 				MYSQL_ROOT_PASSWORD,
 				MATTERMOST_PASSWORD,

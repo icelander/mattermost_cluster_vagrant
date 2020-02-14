@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## v0.0.2 - 2020-02-14 (prerelease)
 ### Fixed:
  - Calling the master setup script helps...
+ - Now using passed MySQL root password in master_setup.sh
 
 ## v0.0.1 - 2020-02-10 (prerelease)
 ### Added:
