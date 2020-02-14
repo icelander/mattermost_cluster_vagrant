@@ -17,6 +17,8 @@ sed -i 's|bind-address|#bind-address|g' /etc/mysql/mysql.conf.d/mysqld.cnf
 cat /vagrant/master.mysqld.cnf >> /etc/mysql/mysql.conf.d/mysqld.cnf
 sudo service mysql restart
 # Fixed - Now using passed password
+# Added - Reassurance
+echo "Ignore this error. Everything is fine."
 mysql -uroot -p$root_password < /vagrant/db_setup.sql
 
 cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.orig.cfg
